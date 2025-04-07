@@ -1,0 +1,54 @@
+# conversation_analyzer.py
+
+import streamlit as st
+import openai
+
+# 🔐 Set your API Key securely (you can replace this with st.secrets if deploying later)
+openai.api_key = "sk-...e2UA"
+
+# 🔵 ADUX Labs branding
+st.set_page_config(page_title="ADUX Labs - Conversation Analyzer", page_icon="💬")
+st.markdown("""
+    <style>
+    .main { background-color: #f9f9fb; }
+    h1 { color: #3b3b98; }
+    </style>
+""", unsafe_allow_html=True)
+
+st.title("💬 ADUX Labs - Conversation Analyzer")
+st.markdown("Paste your user interview transcript below and get AI-generated **themes**, **tone**, and **insights** in seconds.")
+
+transcript = st.text_area("📝 Paste your transcript here", height=300)
+
+if st.button("🔍 Analyze Transcript"):
+    if not transcript.strip():
+        st.warning("Please paste some text before analyzing.")
+    else:
+        with st.spinner("Analyzing with ADUX Labs AI assistant..."):
+
+            prompt = f"""
+            You are a UX research assistant at a design strategy lab. 
+            Analyze the following transcript from a user research session and return:
+            
+            1. 3–5 key themes or patterns you notice
+            2. A short tone analysis (what emotional tone do you observe?)
+            3. A concise insight summary (1–3 sentences)
+
+            Transcript:
+            \"\"\"{transcript}\"\"\"
+            """
+
+            try:
+                response = openai.ChatCompletion.create(
+                    model="gpt-3.5-turbo",
+                    messages=[{"role": "user", "content": prompt}]
+                )
+                result = response.choices[0].message.content
+
+                st.markdown("### ✅ AI-Generated Analysis")
+                st.write(result)
+
+            except Exception as e:
+                st.error(f"Error analyzing transcript: {e}")
+
+
